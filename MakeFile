@@ -1,18 +1,29 @@
+source = blink.c
+CC=avr-gcc
+OBJCC= avr-objcopy
+LIBS=
+board=atmega328p
+port=/dev/ttyUSB0
+baud=57600
+DEFS= 
+FREQ= 16000000UL
+executable= blink.elf
+
 all: compile program clean
 
 .PHONY: compile
 
 compile:
-	avr-gcc -Os -DF_CPU=16000000UL -mmcu=atmega328p -c -o blink.o blink.c
-	avr-gcc -mmcu=atmega328p blink.o -o blink
-	avr-objcopy -O ihex -R .eeprom blink blink.hex
+	$(CC) -Os -DF_CPU=$(FREQ) -mmcu=$(board) $(DEFS) -c -o $(source:%.c=%.o) $(source) $(LIBS)
+	$(CC) -mmcu=$(board) $(source:%.c=%.o) -o $(executable)
+	$(OBJCC) -O ihex -R .eeprom $(executable) $(source:%.c=%.hex)
 
 .PHONY: program
 
 program: 
-	sudo avrdude -v -p atmega328p -c arduino -P /dev/ttyUSB0 -b 57600 -D -U flash:w:blink.hex:i
+	sudo avrdude -v -p $(board) -c arduino -P $(port) -b $(baud) -D -U flash:w:$(source:%.c=%.hex):i
 
 .PHONY: clean
 
 clean: 
-	rm -f blink.o blink blink.hex
+	rm -f $(source:%.c=%.o) $(executable) $(source:%.c=%.hex)
