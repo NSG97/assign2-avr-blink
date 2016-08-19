@@ -28,4 +28,4 @@ program:
 .PHONY: clean
 
 clean: 
-	rm -f $(source:%.c=%.o) $(executable) $(source:%.c=%.hex)
+	rm -f $(object) $(executable) $(hexfile)
