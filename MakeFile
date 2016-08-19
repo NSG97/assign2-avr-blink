@@ -1,4 +1,6 @@
 source = blink.c
+object = blink.o
+hexfile = blink.hex
 CC=avr-gcc
 OBJCC= avr-objcopy
 LIBS=
@@ -14,14 +16,14 @@ all: compile program clean
 .PHONY: compile
 
 compile:
-	$(CC) -Os -DF_CPU=$(FREQ) -mmcu=$(board) $(DEFS) -c -o $(source:%.c=%.o) $(source) $(LIBS)
-	$(CC) -mmcu=$(board) $(source:%.c=%.o) -o $(executable)
-	$(OBJCC) -O ihex -R .eeprom $(executable) $(source:%.c=%.hex)
+	$(CC) -Os -DF_CPU=$(FREQ) -mmcu=$(board) $(DEFS) -c -o $(object) $(source) $(LIBS)
+	$(CC) -mmcu=$(board) $(object) -o $(executable)
+	$(OBJCC) -O ihex -R .eeprom $(executable) $(hexfile)
 
 .PHONY: program
 
 program: 
-	sudo avrdude -v -p $(board) -c arduino -P $(port) -b $(baud) -D -U flash:w:$(source:%.c=%.hex):i
+	sudo avrdude -v -p $(board) -c arduino -P $(port) -b $(baud) -D -U flash:w:$(hexfile):i
 
 .PHONY: clean
 
